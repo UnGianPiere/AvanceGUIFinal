@@ -3,8 +3,8 @@ import pyodbc
 
 def Conexion():
     SERVER = 'UHYXI60121'
-    DATABASE = 'Sueldos'
-    USERNAME = 'Pier'
+    DATABASE = 'dbCalculoSueldo'
+    USERNAME = 'Pier2'
     PASSWORD = '123'
     try:
         conexion = pyodbc.connect(
@@ -13,3 +13,5 @@ def Conexion():
         return conexion
     except Exception as e:
         print(e)
+
+

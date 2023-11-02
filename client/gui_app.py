@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from ModelDB.conexion_db import Conexion
 
+
 def barra_menu(root):
     barra_menu = tk.Menu(root)
     root.config(menu=barra_menu, width=380, height=300)
@@ -72,12 +73,12 @@ class Frame(tk.Frame):
 
         self.boton_Eliminar = tk.Button(self, text='Eliminar')
         self.boton_Eliminar.config(width=20, font=('Times New Roman', 14, 'bold'), fg='Yellow', bg='Red',
-                            activebackground='green')
+                                   activebackground='green',command=ventana_actualizar)
         self.boton_Eliminar.grid(row=6, column=1, padx=10, pady=10)
 
         self.boton_Editar = tk.Button(self, text='Editar')
         self.boton_Editar.config(width=20, font=('Times New Roman', 14, 'bold'), fg='Yellow', bg='Green',
-                          activebackground='green')
+                                 activebackground='green',command=ventana_buscar)
         self.boton_Editar.grid(row=6, column=0, padx=10, pady=10)
         self.addClient = tk.PhotoImage()
 
@@ -139,20 +140,29 @@ class Frame(tk.Frame):
         cursor = conexion.cursor()
 
         cursor.execute("Select * from Empleado;")
-        self.lista=[]
+        self.lista = []
         Empleado = cursor.fetchall()
-        self.lista=Empleado
+        self.lista = Empleado
         self.lista.reverse()
 
         cursor.close()
         conexion.close()
 
         for i in self.lista:
-            self.tabla.insert('',0,text=i[0],values=(i[1],i[2],i[3]))
-
-
+            self.tabla.insert('', 0, text=i[0], values=(i[1], i[2], i[3]))
 
         for col in ('#0', '#1', '#2', '#3'):
             self.tabla.column(col, anchor='center')
 
+def ventana_buscar():
+    FrameBuscar = tk.Toplevel()
+    FrameBuscar.title('Buscar Empleado')
+    FrameBuscar()
 
+
+
+
+
+def ventana_actualizar():
+    FrameActuzalizar = tk.Toplevel()
+    FrameActuzalizar.title('Actualizar Bonificaciones')
