@@ -17,25 +17,37 @@ def barra_menu(root):
 
 class Frame(tk.Frame):
     def __init__(self, root=None):
-        super().__init__(root, width=1080, height=600)
-        self.root = root
+        super().__init__(root)
         self.pack()
-        self.config()
+        self.config(bg='#A1b0cb')
+
         self.Opciones()
 
     def Opciones(self):
-        self.BOTONCREAR = tk.Button(self, text='CREAR NUEVO EMPLEADO', command=ventana_Crear)
-        self.BOTONCREAR.config(font=('Times New Roman', 14, 'bold'), fg='white', bg='blue', activebackground='green')
-        self.BOTONCREAR.grid(row=3, column=4, padx=10, pady=10)
+        img_crear = tk.PhotoImage(file="img/add.png")
+        img_gestionar = tk.PhotoImage(file="img/gestionarE.png")
+        img_gestionarB = tk.PhotoImage(file="img/bonificacion.png")
+        self.BOTONCREAR = tk.Button(self, image=img_crear, command=ventana_Crear)
+        self.BOTONCREAR.image=img_crear
+        self.BOTONCREAR.config(font=('Times New Roman', 10, 'bold'), fg='white', bg='grey', activebackground='green')
+        self.BOTONCREAR.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        self.BOTONBUSCAR = tk.Button(self, text='BUSCAR EMPLEADO', command=ventana_buscar)
-        self.BOTONBUSCAR.config(font=('Times New Roman', 14, 'bold'), fg='white', bg='red', activebackground='green')
-        self.BOTONBUSCAR.grid(row=4, column=4, padx=10, pady=10)
+        self.BOTONBUSCAR = tk.Button(self, image=img_gestionar, command=ventana_buscar)
+        self.BOTONBUSCAR.image = img_gestionar
+        self.BOTONBUSCAR.config(font=('Times New Roman', 10, 'bold'), fg='white', bg='grey', activebackground='green')
+        self.BOTONBUSCAR.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
-        self.BOTONACTUALIZAR = tk.Button(self, text='MODIFICAR BONIFICACIONES')
-        self.BOTONACTUALIZAR.config(font=('Times New Roman', 14, 'bold'), fg='white', bg='green',
+        self.BOTONACTUALIZAR = tk.Button(self, image=img_gestionarB)
+        self.BOTONACTUALIZAR.image = img_gestionarB
+        self.BOTONACTUALIZAR.config(font=('Times New Roman', 10, 'bold'), fg='white', bg='grey',
                                     activebackground='green')
-        self.BOTONACTUALIZAR.grid(row=5, column=4, padx=10, pady=10)
+        self.BOTONACTUALIZAR.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+
+        self.BOTONSALIR = tk.Button(self, text='Salir',command=self.destroy)
+        self.BOTONSALIR.config(font=('Times New Roman', 10, 'bold'), fg='#D01818', bg='#Ce8d8d',
+                                    activebackground='green')
+        self.BOTONSALIR.grid(row=7, column=0, padx=10, pady=(50, 10), sticky="ew")
+
 
 
 def ventana_buscar():
@@ -62,11 +74,15 @@ class FrameBuscar1(tk.Toplevel):
         self.tablaB.heading('#1', text='Nombre')
         self.tablaB.heading('#2', text='Cargo')
 
-        self.botonSeleccionar = tk.Button(self, command=self.Seleccion, text='Seleccionar empleado')
+        self.botonSeleccionar = tk.Button(self, command=self.Seleccion, text='Mostrar Historial')
         self.botonSeleccionar.config(bg='grey', fg='White')
         self.botonSeleccionar.grid(row=3, column=1, padx=10, pady=10)
+
+        self.botonSeleccionar2 = tk.Button(self, command=self.Seleccion2, text='Gestionar asistencia ')
+        self.botonSeleccionar2.config(bg='grey', fg='White')
+        self.botonSeleccionar2.grid(row=3, column=2, padx=10, pady=10)
     def Buscar(self):
-        self.tablaB.delete()
+
         conexion = Conexion()
         cursor = conexion.cursor()
         nombre = self.entry.get()
@@ -83,13 +99,77 @@ class FrameBuscar1(tk.Toplevel):
         conexion.close()
 
     def Seleccion(self):
-        id=self.tablaB.item(self.tablaB.selection())['text']
-        print(id)
+        selected_item = self.tablaB.selection()
+        if selected_item:
+            selected_row = self.tablaB.item(selected_item)
+            self.id = selected_row['text']  # ID en la columna 0
+            self.nombre = selected_row['values'][0]  # Nombre en la columna 1
         conexion = Conexion()
         cursor = conexion.cursor()
-        cursor.execute(f"select * from tblBoletaPago Where IDEmpleado LIKE {id}")
-        lista=[cursor.fetchall()]
-        print(lista)
+        cursor.execute(f"select * from tblBoletaPago Where IDEmpleado LIKE {self.id}")
+        lista=[]
+        histo=cursor.fetchall()
+        lista=histo
+        lista.reverse()
+        FrameHistorial=tk.Toplevel()
+        FrameHistorial.title('Historial de pagos')
+        FrameHistorial.geometry("600x400")
+        FrameHistorial.iconbitmap('img/add.ico')
+        FrameHistorial.label = tk.Label(FrameHistorial, text=f"Nombre del Empleado: {self.nombre}")
+        FrameHistorial.label.grid(row=0, column=0, padx=10, pady=10)
+
+        tablaBOL= ttk.Treeview(FrameHistorial, column=('Fecha', 'Monto'))
+        tablaBOL.grid(row=2, column=0, columnspan=3)
+        tablaBOL.heading('#0', text='ID de Boleta')
+        tablaBOL.heading('#1', text='Fecha de pago')
+        tablaBOL.heading('#2', text='Monto Total')
+        for i in lista:
+                tablaBOL.insert('', 0, text=i[0], values=(i[4], i[1]))
+
+        cursor.close()
+        conexion.close()
+
+    def Seleccion2(self):
+        selected_item = self.tablaB.selection()
+        if selected_item:
+            selected_row = self.tablaB.item(selected_item)
+            self.id = selected_row['text']  # ID en la columna 0
+        conexion = Conexion()
+        cursor = conexion.cursor()
+        FrameHistorial2 = tk.Toplevel()
+        label_horas_extra = tk.Label(FrameHistorial2, text="Horas Extra:")
+        label_horas_extra.grid(row=3, column=0, padx=10, pady=10)
+        entry_horas_extra = tk.Entry(FrameHistorial2)
+        entry_horas_extra.grid(row=3, column=1, padx=10, pady=10)
+
+        label_minutos_falta = tk.Label(FrameHistorial2, text="Minutos de Falta:")
+        label_minutos_falta.grid(row=4, column=0, padx=10, pady=10)
+        entry_minutos_falta = tk.Entry(FrameHistorial2)
+        entry_minutos_falta.grid(row=4, column=1, padx=10, pady=10)
+
+        label_dias_falta = tk.Label(FrameHistorial2, text="Días de Falta:")
+        label_dias_falta.grid(row=5, column=0, padx=10, pady=10)
+        entry_dias_falta = tk.Entry(FrameHistorial2)
+        entry_dias_falta.grid(row=5, column=1, padx=10, pady=10)
+        horas = entry_horas_extra.get()
+        minutos = entry_minutos_falta.get()
+        dias = entry_dias_falta.get()
+        botonGuarda = tk.Button(FrameHistorial2, text='Guardar',command=lambda:GuardarDATOSEMPLEDO(self.id,horas,minutos,dias))
+        botonGuarda.config(bg='grey', fg='White')
+        botonGuarda.grid(row=6, column=2, padx=10, pady=10)
+        cursor.close()
+        conexion.close()
+
+def GuardarDATOSEMPLEDO(id,horas,minutos,dias):
+    conexion = Conexion()
+    cursor = conexion.cursor()
+    idmes='MES011'
+    print(f'{id},{horas},{minutos},{dias}')
+    cursor.execute(f'Insert into tblDetalleMensualTrabajador (IDEmpleado,IDMes,detailHorasExtra,detailMinutosTardanzas,detailDiasFalta) values ( {id},{idmes},{horas},{minutos},{dias} )')
+    print('se guardo correctamente los datos')
+    cursor.close()
+    conexion.close()
+
 def ventana_Crear():
     Framecrear1()
 class Framecrear1(tk.Toplevel):
@@ -103,6 +183,7 @@ class Framecrear1(tk.Toplevel):
         self.tabla_empleado()
 
     def contenido(self):
+
         self.label_nombre = tk.Label(self, text='Nombre Completo: ')
         self.label_nombre.config(font=('Times New Roman', 14, 'bold'))
         self.label_nombre.grid(row=0, column=0, padx=10, pady=10)
@@ -154,7 +235,7 @@ class Framecrear1(tk.Toplevel):
         self.boton_Editar.config(width=20, font=('Times New Roman', 14, 'bold'), fg='Yellow', bg='Green',
                                  activebackground='green')
         self.boton_Editar.grid(row=6, column=0, padx=10, pady=10)
-        self.addClient = tk.PhotoImage()
+
 
     def deshabilitar_campos(self):
         self.entry_Cargo.config(state='disable')
@@ -226,5 +307,6 @@ class Framecrear1(tk.Toplevel):
             self.tabla.column(col, anchor='center')
         cursor.close()
         conexion.close()
+
 
 
