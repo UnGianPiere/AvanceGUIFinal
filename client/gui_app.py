@@ -129,7 +129,25 @@ class FrameBuscar1(tk.Toplevel):
         cursor.close()
         conexion.close()
 
+
+
+
     def Seleccion2(self):
+
+        def GuardarDATOSEMPLEDO():
+            conexion = Conexion()
+            cursor = conexion.cursor()
+            id=self.id
+            horas = self.entry_horas_extra.get()
+            minutos = self.entry_minutos_falta.get()
+            dias = self.entry_dias_falta.get()
+            idmes = 'MES001'
+            print(f'{id},{horas},{minutos},{dias}')
+            cursor.execute(f'Insert into tblDetalleMensualTrabajador (IDEmpleado,IDMes,detailHorasExtra,detailMinutosTardanzas,detailDiasFalta) values ( {id},\'{idmes}\',{horas},{minutos},{dias} )')
+            print('se guardo correctamente los datos')
+            cursor.close()
+            conexion.close()
+
         selected_item = self.tablaB.selection()
         if selected_item:
             selected_row = self.tablaB.item(selected_item)
@@ -139,36 +157,28 @@ class FrameBuscar1(tk.Toplevel):
         FrameHistorial2 = tk.Toplevel()
         label_horas_extra = tk.Label(FrameHistorial2, text="Horas Extra:")
         label_horas_extra.grid(row=3, column=0, padx=10, pady=10)
-        entry_horas_extra = tk.Entry(FrameHistorial2)
-        entry_horas_extra.grid(row=3, column=1, padx=10, pady=10)
+        self.entry_horas_extra = tk.Entry(FrameHistorial2)
+        self.entry_horas_extra.grid(row=3, column=1, padx=10, pady=10)
 
         label_minutos_falta = tk.Label(FrameHistorial2, text="Minutos de Falta:")
         label_minutos_falta.grid(row=4, column=0, padx=10, pady=10)
-        entry_minutos_falta = tk.Entry(FrameHistorial2)
-        entry_minutos_falta.grid(row=4, column=1, padx=10, pady=10)
+        self.entry_minutos_falta = tk.Entry(FrameHistorial2)
+        self.entry_minutos_falta.grid(row=4, column=1, padx=10, pady=10)
 
         label_dias_falta = tk.Label(FrameHistorial2, text="Días de Falta:")
         label_dias_falta.grid(row=5, column=0, padx=10, pady=10)
-        entry_dias_falta = tk.Entry(FrameHistorial2)
-        entry_dias_falta.grid(row=5, column=1, padx=10, pady=10)
-        horas = entry_horas_extra.get()
-        minutos = entry_minutos_falta.get()
-        dias = entry_dias_falta.get()
-        botonGuarda = tk.Button(FrameHistorial2, text='Guardar',command=lambda:GuardarDATOSEMPLEDO(self.id,horas,minutos,dias))
+        self.entry_dias_falta = tk.Entry(FrameHistorial2)
+        self.entry_dias_falta.grid(row=5, column=1, padx=10, pady=10)
+
+        botonGuarda = tk.Button(FrameHistorial2, text='Guardar',command=GuardarDATOSEMPLEDO)
         botonGuarda.config(bg='grey', fg='White')
         botonGuarda.grid(row=6, column=2, padx=10, pady=10)
         cursor.close()
         conexion.close()
 
-def GuardarDATOSEMPLEDO(id,horas,minutos,dias):
-    conexion = Conexion()
-    cursor = conexion.cursor()
-    idmes='MES011'
-    print(f'{id},{horas},{minutos},{dias}')
-    cursor.execute(f'Insert into tblDetalleMensualTrabajador (IDEmpleado,IDMes,detailHorasExtra,detailMinutosTardanzas,detailDiasFalta) values ( {id},{idmes},{horas},{minutos},{dias} )')
-    print('se guardo correctamente los datos')
-    cursor.close()
-    conexion.close()
+
+
+
 
 def ventana_Crear():
     Framecrear1()
